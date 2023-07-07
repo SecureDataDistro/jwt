@@ -1,0 +1,32 @@
+{
+  "name": "jwt",
+  "version": "0.0.1",
+  "description": "JWT library and service",
+  "main": "index.ts",
+  "repository": "git@github.com:SecureDataDistro/jwt.git",
+  "author": "j.taylor <j.taylor@orbisops.com>",
+  "license": "Elastic-2.0",
+  "private": false,
+  "scripts": {
+    "build": "yarn esbuild ./src/index.ts --outfile=./dist/index.js --bundle --platform=node --target=node18 --log-level=error",
+    "local": "yarn build && npx run-func ./dist/index.js localServer",
+    "docker:ecrlogin": "aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/z0z7j0k1",
+    "docker:build": "docker build -t jwt-service .",
+    "docker:tag": "docker tag jwt-service:latest public.ecr.aws/z0z7j0k1/jwt-service:latest",
+    "docker:push": "docker push public.ecr.aws/z0z7j0k1/jwt-service:latest",
+    "docker:publish": "yarn build && yarn docker:ecrlogin && yarn docker:build && yarn docker:tag && yarn docker:push"
+  },
+  "devDependencies": {
+    "@types/node": "^16",
+    "esbuild": "^0.18.6"
+  },
+  "dependencies": {
+    "@aws-sdk/client-kms": "^3.352.0",
+    "aws-crt": "^1.15.18",
+    "axios": "^1.4.0",
+    "base64url": "^3.0.1",
+    "express": "^4.18.2",
+    "jose": "^4.14.4",
+    "uuid": "^9.0.0"
+  }
+}
