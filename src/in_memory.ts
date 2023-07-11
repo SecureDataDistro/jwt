@@ -14,7 +14,7 @@ export class InMemorySignerVerifier implements AssymetricJWTSigner {
     expiry;
     constructor() {
         this.uuid = uuidv4();
-        this.expiry = 60 * 60; // 60s * 60m = 1hr
+        this.expiry = 60 * 60 * 24 * 7; // 1 week
         this.publicKey = {} as KeyLike;
         this.privateKey = {} as KeyLike;
     }
