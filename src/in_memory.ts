@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import base64url from "base64url";
 import {generateKeyPair, CompactSign, KeyLike, exportSPKI, SignJWT} from "jose";
 import express from "express";
+import exp = require("constants");
 
 // ES384        | ECDSA using P-384 and SHA-384 | Optional 
 export class InMemorySignerVerifier implements AssymetricJWTSigner {
@@ -31,10 +32,15 @@ export class InMemorySignerVerifier implements AssymetricJWTSigner {
         console.log(spkiPem)
     }
 
-    async sign(jwt: JWT): Promise<{ token: string; }> {
-        //const header = jwt.header("ES384");
-
-        const payload = jwt.payloadRaw(`sdd:hub:iam:local:${this.uuid}`, this.expiry)
+    async sign(jwt: JWT, expiresIn?: number): Promise<{ token: string; }> {
+        
+        let payload;
+        if (jwt.sub.includes("sdd:hub:network:gateway")) {
+            console.log('signing network token ', expiresIn)
+            payload = jwt.payloadRaw(`sdd:hub:iam:local:${this.uuid}`, expiresIn?? this.expiry)
+        } else {
+            payload = jwt.payloadRaw(`sdd:hub:iam:local:${this.uuid}`, this.expiry)
+        }
 
         console.log(payload);
 
@@ -65,8 +71,10 @@ export const localServer = async () => {
     app.use(express.json());
     app.put('/token',  async (req, res) => {
         const jwtReq =  req.body as JWTSigningRequest;
+        console.log(jwtReq)
         const jwt = new JWT(jwtReq.entity, jwtReq.claims);
-        const token = await signer.sign(jwt)
+        console.log("signing token:" , jwt,jwtReq.expiresIn) 
+        const token = await signer.sign(jwt,  jwtReq.expiresIn)
         res.send(token)
     })
 

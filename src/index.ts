@@ -90,7 +90,7 @@ export class JWT implements DSSJWT{
     }
 }
 export interface AssymetricJWTSigner {
-    sign(jwt: JWT): Promise<{token: string}>
+    sign(jwt: JWT, expiresIn?: number): Promise<{token: string}>
 }
 
 export interface AssymetricJWTVerifier {
@@ -100,6 +100,7 @@ export interface AssymetricJWTVerifier {
 export interface JWTSigningRequest {
     entity: string
     claims: string[]
+    expiresIn?: number
 }
 
 export class SigningClient {
